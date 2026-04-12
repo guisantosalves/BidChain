@@ -1,0 +1,32 @@
+Table users {
+    id integer [pk, increment]
+    wallet_address varchar [unique, not null]
+    created_at timestamp [default: `now()`]
+  }
+
+  Table auctions {
+    id integer [pk, increment]
+    creator_id integer [not null, ref: > users.id]
+    description text [not null]
+    ipfs_hash varchar
+    contract_address varchar
+    min_bid decimal [not null]
+    deadline timestamp [not null]
+    finalized boolean [default: false]
+    created_at timestamp [default: `now()`]
+  }
+
+  Table bids {
+    id integer [pk, increment]
+    auction_id integer [not null, ref: > auctions.id]
+    bidder_id integer [not null, ref: > users.id]
+    amount decimal [not null]
+    tx_hash varchar
+    created_at timestamp [default: `now()`]
+  }
+
+  ref: auctions.creator_id > users.id
+
+  ref: bids.auction_id > auctions.id
+
+  ref: bids.bidder_id > users.id
