@@ -24,11 +24,12 @@ contract Auction {
 
     // === Constructor ===
     constructor(
+        address _seller,
         string memory _description,
         string memory _ipfsHash,
         uint _durationSeconds
     ) {
-        seller = msg.sender; // msg.sender is whoever deployed it (seller)
+        seller = _seller; // quem chamou o createAuction na factory
         itemDescription = _description; //
         ipfsHash = _ipfsHash;
         deadline = block.timestamp + _durationSeconds;

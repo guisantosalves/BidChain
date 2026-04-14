@@ -16,7 +16,7 @@ contract AuctionTest is Test {
     function setUp() public {
         // vm.prank -> prox chamada tem msg.sender = seller
         vm.prank(seller);
-        auction = new Auction("Guitarra fender", "QmFakeHash", 1 days);
+        auction = new Auction(seller, "Guitarra fender", "QmFakeHash", 1 days);
 
         // eth de mentira
         vm.deal(alice, 10 ether);
