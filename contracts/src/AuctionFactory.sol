@@ -8,7 +8,7 @@ contract AuctionFactory {
     address[] public auctions;
 
     event AuctionCreated(
-        address indexed auctionAddressss,
+        address indexed auctionAddress,
         address indexed seller,
         string description
     );
