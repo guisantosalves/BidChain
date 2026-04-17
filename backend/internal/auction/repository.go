@@ -13,11 +13,6 @@ type AuctionRepository interface {
 	Finalize(ctx context.Context, address string) error
 }
 
-type BidRepository interface {
-	Create(ctx context.Context, b *Bid) error
-	ListByAction(ctx context.Context, auctionAddress string) ([]*Bid, error)
-}
-
 type postgresAuctionRepo struct {
 	db *sql.DB
 }
@@ -45,8 +40,7 @@ func (r *postgresAuctionRepo) Create(ctx context.Context, a *Auction) error {
 func (r *postgresAuctionRepo) GetByAddress(ctx context.Context, address string) (*Auction,
 	error) {
 	query := `
-        SELECT id, address, seller, description, ipfs_hash, ends_at, fin
-  		created_at
+        SELECT id, address, seller, description, ipfs_hash, ends_at, finalized, created_at
         FROM auctions
         WHERE address = $1
 	`
@@ -75,7 +69,7 @@ func (r *postgresAuctionRepo) GetByAddress(ctx context.Context, address string) 
 
 func (r *postgresAuctionRepo) Lists(ctx context.Context, onlyActive bool) ([]*Auction, error) {
 	query := `
-		SELECT id, address, seller, description, ipfs_hash, ends_at, fin created_at
+		SELECT id, address, seller, description, ipfs_hash, ends_at, finalized, created_at
         FROM auctions
         WHERE ($1 = false OR (finalized = false AND ends_at > NOW()))
         ORDER BY created_at DESC
@@ -110,7 +104,7 @@ func (r *postgresAuctionRepo) Lists(ctx context.Context, onlyActive bool) ([]*Au
 	return auctions, err
 }
 
-func (r *postgresAuctionRepo) Finlize(ctx context.Context, address string) error {
+func (r *postgresAuctionRepo) Finalize(ctx context.Context, address string) error {
 	tx, err := r.db.BeginTx(ctx, nil)
 	if err != nil {
 		return fmt.Errorf("auctionRepo.Finalize: begin: %w", err)
@@ -138,4 +132,8 @@ func (r *postgresAuctionRepo) Finlize(ctx context.Context, address string) error
 	}
 
 	return tx.Commit()
+}
+
+func NewAuctionRepository(db *sql.DB) AuctionRepository {
+	return &postgresAuctionRepo{db: db}
 }

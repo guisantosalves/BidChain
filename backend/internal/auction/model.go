@@ -3,22 +3,22 @@ package auction
 import "time"
 
 type Auction struct {
-	ID          int64
-	Address     string
-	Seller      string
-	Description string
-	IPFSHash    string
-	CreatedAt   time.Time
-	EndsAt      time.Time
-	Finalized   bool
+	ID          int64     `json:"id"`
+	Address     string    `json:"address"`
+	Seller      string    `json:"seller"`
+	Description string    `json:"sescription"`
+	IPFSHash    string    `json:"IPFSHash"`
+	CreatedAt   time.Time `json:"createdAt,omitempty"`
+	EndsAt      time.Time `json:"endsAt"`
+	Finalized   bool      `json:"finalized"`
 }
 
 type Bid struct {
-	ID             int64
-	AuctionAddress string
-	Bidder         string
-	Amount         string
-	TxHash         string
-	BlockNumber    uint64
-	CreatedAt      time.Time
+	ID             int64     `json:"id"`
+	AuctionAddress string    `json:"auctionAddress"`
+	Bidder         string    `json:"bidder"`
+	Amount         string    `json:"amount"`
+	TxHash         string    `json:"txHash"`
+	BlockNumber    uint64    `json:"blockNumber"`
+	CreatedAt      time.Time `json:"createdAt,omitempty"`
 }

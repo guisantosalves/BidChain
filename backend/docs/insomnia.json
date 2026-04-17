@@ -1,0 +1,43 @@
+{
+  "_type": "export",
+  "__export_format": 4,
+  "resources": [
+    {
+      "_id": "wrk_1",
+      "_type": "workspace",
+      "name": "BidChain API"
+    },
+    {
+      "_id": "req_1",
+      "_type": "request",
+      "parentId": "wrk_1",
+      "name": "Health Check",
+      "method": "GET",
+      "url": "http://localhost:8080/health"
+    },
+    {
+      "_id": "req_2",
+      "_type": "request",
+      "parentId": "wrk_1",
+      "name": "List Auctions",
+      "method": "GET",
+      "url": "http://localhost:8080/auctions"
+    },
+    {
+      "_id": "req_3",
+      "_type": "request",
+      "parentId": "wrk_1",
+      "name": "Get Auction",
+      "method": "GET",
+      "url": "http://localhost:8080/auctions/0xSeuEnderecoAqui"
+    },
+    {
+      "_id": "req_4",
+      "_type": "request",
+      "parentId": "wrk_1",
+      "name": "List Bids",
+      "method": "GET",
+      "url": "http://localhost:8080/auctions/0xSeuEnderecoAqui/bids"
+    }
+  ]
+}
