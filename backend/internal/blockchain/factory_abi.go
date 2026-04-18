@@ -13,4 +13,5 @@ const factoryABI = `[
 	}
 ]`
 
+// endereço do contrato na chain
 const factoryAddress = "0x47b30924Bf389f2489B66FB1B65D6281a7f534BC"

@@ -1,15 +1,51 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"net/http"
 	"os"
+	"os/signal"
+	"syscall"
+	"time"
 
 	"github.com/guisantosalves/bidchain/internal/auction"
+	"github.com/guisantosalves/bidchain/internal/blockchain"
 	"github.com/guisantosalves/bidchain/internal/database"
 	"github.com/joho/godotenv"
 )
+
+func startServer(mux *http.ServeMux, cancel context.CancelFunc) {
+	srv := &http.Server{
+		Addr:    ":8080",
+		Handler: mux,
+	}
+
+	quit := make(chan os.Signal, 1)
+	signal.Notify(quit, os.Interrupt, syscall.SIGTERM)
+
+	go func() {
+		log.Printf("Server running on %s\n", srv.Addr)
+		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+			log.Fatalf("server error: %v", err)
+		}
+	}()
+
+	<-quit // bloqueia até ctrl c
+
+	log.Printf("Shutting down...")
+	cancel()
+
+	shutdownCtx, shutdownCancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer shutdownCancel()
+
+	if err := srv.Shutdown(shutdownCtx); err != nil {
+		log.Fatalf("forced shutdown: %v", err)
+	}
+
+	log.Println("server stopped")
+}
 
 func main() {
 	godotenv.Load()
@@ -42,8 +78,16 @@ func main() {
 	// Bid | auctions
 	h.RegisterRoutes(mux)
 
-	log.Println("servver running on 8080")
-	if err := http.ListenAndServe(":8080", mux); err != nil {
-		log.Fatalf("server error: %w", err)
+	// listener blockchain
+	listener, err := blockchain.NewListener(os.Getenv("RPC_URL"))
+	if err != nil {
+		log.Fatalf("failed to create listener: %v", err)
 	}
+
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	go listener.Start(ctx)
+
+	startServer(mux, cancel)
 }
