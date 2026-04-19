@@ -39,22 +39,29 @@ func NewListener(rpcUrl string) (*Listener, error) {
 	return &Listener{
 		client:          client,
 		contractABI:     parsedABI,
-		contractAddress: common.HexToAddress(factoryAddress),
+		contractAddress: common.HexToAddress(FactoryAddress),
 		Events:          make(chan AuctionCreatedEvent, 100),
 	}, nil
 }
 
 func (l *Listener) handleLog(vLog types.Log) {
-	event := AuctionCreatedEvent{}
 
-	err := l.contractABI.UnpackIntoInterface(&event, "AuctionCreated", vLog.Data)
+	var data struct {
+		Description string
+	}
+
+	err := l.contractABI.UnpackIntoInterface(&data, "AuctionCreated", vLog.Data)
 	if err != nil {
 		log.Printf("listener: failed to unpack log: %v", err)
 		return
 	}
 
-	event.AuctionAddress = common.HexToAddress(vLog.Topics[1].Hex())
-	event.Seller = common.HexToAddress(vLog.Topics[2].Hex())
+	// indexed data will be retrieve on Topics
+	event := AuctionCreatedEvent{
+		AuctionAddress: common.HexToAddress(vLog.Topics[1].Hex()),
+		Seller:         common.HexToAddress(vLog.Topics[2].Hex()),
+		Descrition:     data.Description,
+	}
 
 	l.Events <- event
 }

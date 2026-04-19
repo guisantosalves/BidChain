@@ -64,7 +64,15 @@ func main() {
 	auctionRepo := auction.NewAuctionRepository(db)
 	bidRepo := auction.NewBidRepository(db)
 	svc := auction.NewService(auctionRepo, bidRepo)
-	h := auction.NewHandler(svc)
+	caller, err := blockchain.NewCaller(
+		os.Getenv("CALLER_RPC_URL"),
+		os.Getenv("PRIVATE_KEY"),
+		blockchain.FactoryAddress,
+	)
+	if err != nil {
+		log.Fatalf("failed to create caller: %v", err)
+	}
+	h := auction.NewHandler(svc, caller)
 
 	fmt.Println("database connected")
 
@@ -84,10 +92,23 @@ func main() {
 		log.Fatalf("failed to create listener: %v", err)
 	}
 
+	// workers
+	pool := blockchain.NewWorkerPool(5, listener.Events, func(ctx context.Context, event blockchain.AuctionCreatedEvent) error {
+		// everytime the event receive value on chanel it will be called, the worker will do that
+		auction := &auction.Auction{
+			Address:     event.AuctionAddress.Hex(),
+			Seller:      event.Seller.Hex(),
+			Description: event.Descrition,
+		}
+
+		return svc.CreateAuction(ctx, auction)
+	})
+
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
 	go listener.Start(ctx)
+	go pool.Start(ctx)
 
 	startServer(mux, cancel)
 }

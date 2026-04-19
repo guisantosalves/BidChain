@@ -17,22 +17,22 @@ type service struct {
 
 // CreateAuction implements [Service].
 func (s *service) CreateAuction(ctx context.Context, a *Auction) error {
-	return s.CreateAuction(ctx, a)
+	return s.auctionRepo.Create(ctx, a)
 }
 
 // CreateBid implements [Service].
 func (s *service) CreateBid(ctx context.Context, b *Bid) error {
-	return s.CreateBid(ctx, b)
+	return s.bidRepo.Create(ctx, b)
 }
 
 // GetAuction implements [Service].
 func (s *service) GetAuction(ctx context.Context, address string) (*Auction, error) {
-	return s.GetAuction(ctx, address)
+	return s.auctionRepo.GetByAddress(ctx, address)
 }
 
 // ListAuctions implements [Service].
-func (s *service) ListAuctions(ctx context.Context, onlyActivce bool) ([]*Auction, error) {
-	return s.auctionRepo.Lists(ctx, onlyActivce)
+func (s *service) ListAuctions(ctx context.Context, onlyActive bool) ([]*Auction, error) {
+	return s.auctionRepo.Lists(ctx, onlyActive)
 }
 
 // ListBids implements [Service].

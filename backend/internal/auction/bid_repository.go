@@ -45,7 +45,7 @@ func (p *postgresBidRepo) ListByAction(ctx context.Context, auctionAddress strin
 		ORDER BY block_number DESC
 	`
 
-	rows, err := p.db.QueryContext(ctx, query)
+	rows, err := p.db.QueryContext(ctx, query, auctionAddress)
 	if err != nil {
 		return nil, fmt.Errorf("bidRepo.listByAction: %w", err)
 	}
